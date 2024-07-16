@@ -7,15 +7,21 @@ RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-COPY ./src/frontend/package*.json ./
+COPY package*.json ./
+#COPY ./src/frontend/package*.json ./
+
 RUN npm ci
 
 FROM node:20-alpine AS builder
 RUN apk add --no-cache libc6-compat protobuf-dev protoc
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY ./pb ./pb
-COPY ./src/frontend .
+
+COPY demo.proto ./pb/demo.proto
+#COPY ./pb ./pb
+
+COPY . .
+#COPY ./src/frontend .
 
 RUN npm run grpc:generate
 RUN npm run build
